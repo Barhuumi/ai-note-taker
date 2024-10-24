@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Recording {
+  id            String    @id @default(cuid())
+  userId        String
+  title         String
+  audioUrl      String
+  transcript    String    @db.Text
+  summary       String    @db.Text
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  flashcards    Flashcard[]
+  quizzes       Quiz[]
+}
+
+model Flashcard {
+  id            String    @id @default(cuid())
+  recordingId   String
+  question      String
+  answer        String
+  createdAt     DateTime  @default(now())
+  recording     Recording @relation(fields: [recordingId], references: [id])
+}
+
+model Quiz {
+  id            String    @id @default(cuid())
+  recordingId   String
+  title         String
+  questions     Question[]
+  createdAt     DateTime  @default(now())
+  recording     Recording @relation(fields: [recordingId], references: [id])
+}
+
+model Question {
+  id            String    @id @default(cuid())
+  quizId        String
+  question      String
+  options       String[]
+  correctAnswer String
+  quiz          Quiz      @relation(fields: [quizId], references: [id])
+}
